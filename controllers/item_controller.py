@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
 from models.item_model import items_db, find_item_by_id, ItemModel, link_extraction
-from schemas.item_schema import  Item, LinkExtractionRequest
+from schemas.item_schema import Item, LinkExtractionRequest
 
 router = APIRouter()
 
@@ -65,7 +65,7 @@ async def get_link_extraction_item(link_extraction_request: LinkExtractionReques
         name=link_extraction_request.name,
         start_year=link_extraction_request.start_year,
         end_year=link_extraction_request.end_year,
-        number_of_urls=link_extraction_request.number_of_urls
+        number_of_urls=link_extraction_request.number_of_urls,
     )
 
     if not items:

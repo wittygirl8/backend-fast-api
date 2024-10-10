@@ -3,11 +3,13 @@ from typing import Optional
 from enum import Enum
 from typing import Optional
 
+
 # Enum for sentiment
 class Sentiment(str, Enum):
     neg = "negative"
     neutral = "neutral"
     positive = "positive"
+
 
 # # This schema is used for request validation and response formatting
 # class ItemSchema(BaseModel):
@@ -17,7 +19,8 @@ class Sentiment(str, Enum):
 
 #     class Config:
 #         orm_mode = True
-    
+
+
 class LinkExtractionRequest(BaseModel):
     name: str
     country: str
@@ -26,6 +29,7 @@ class LinkExtractionRequest(BaseModel):
     end_year: int
     sentiment: Sentiment
     number_of_urls: int = 150  # Default value
+
 
 class Item(BaseModel):
     name: str
