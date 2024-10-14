@@ -28,7 +28,7 @@ class LinkExtractionRequest(BaseModel):
     start_year: int
     end_year: int
     sentiment: Sentiment
-    number_of_urls: int = 150  # Default value
+    # number_of_urls: int = 150  # Default value
 
 
 class Item(BaseModel):
@@ -38,4 +38,4 @@ class Item(BaseModel):
     start_date: str
     end_date: str
     sentiment: Sentiment
-    number_of_urls: int = 150  # Default value
+    # number_of_urls: int = 150  # Default value

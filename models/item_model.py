@@ -34,22 +34,16 @@ def find_item_by_id(item_id: int) -> Optional[ItemModel]:
             return item
     return None
 
-
-async def news_link(name, start_year, end_year, number_of_urls, driver):
-
+async def news_link(name, start_year, end_year, driver):
     duration = list(range(start_year, end_year + 1))
     duration = [str(num) for num in duration]
-    base_url = "https://news.google.com/search?q="
+    base_url = 'https://news.google.com/search?q='
     news = []
     for n in duration:
-        hco_url = base_url + urllib.parse.quote(
-            name + " after:" + n + "-01-01 before:" + n + "-12-31"
-        )
+        hco_url = base_url + urllib.parse.quote(name + ' after:' + n + '-01-01 before:' + n + '-12-31')
         driver.get(hco_url)
         print(hco_url)
         i = 3
-        await asyncio.sleep(random.uniform(2, 5))  # Random delay between 2-5 seconds
-
         try:
             while i:
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -62,49 +56,103 @@ async def news_link(name, start_year, end_year, number_of_urls, driver):
             articles = body.find_elements(By.CLASS_NAME, "IFHyqb.DeXSAc")
             print(len(articles))
             if len(articles) == 0:
-                print("no news")
+                print('no news')
                 continue
-            i = 0
             for article in articles:
-                date_element = article.find_element(By.CLASS_NAME, "hvbAAd")
-                date = date_element.get_attribute("datetime")
+                date_element = article.find_element(By.CLASS_NAME, 'hvbAAd')
+                date = date_element.get_attribute('datetime')
                 date = date[:10]
                 # print(date)
-                if i < number_of_urls:
-                    # if 1:
-                    title_element = article.find_element(By.CLASS_NAME, "JtKRv")
-                    title = title_element.text
-                    # anchor_tag = title_element.find_element(By.TAG_NAME,'a')
-                    link = title_element.get_attribute("href")
-                    i = i + 1
-                    # print(i)
-                    news.append({"title": title, "date": date, "link": link})
-                    # print(title, date)
-                    # print(link)
-            if i == 0:
-                print("no news in the timeframe given")
-
+                title_element = article.find_element(By.CLASS_NAME, 'JtKRv')
+                title = title_element.text
+                # anchor_tag = title_element.find_element(By.TAG_NAME,'a')
+                link = title_element.get_attribute('href')
+                # print(i)
+                news.append({'title': title, 'date': date, 'link': link})
+                # print(title, date)
+                # print(link)
+            if len(articles) == 0:
+                print('no news in the timeframe given')
                 continue
             else:
-                print(len(news), "found in year:", n)
-                with open(f"{name}.json", "w") as file:
-                    json.dump(news, file, indent=2)
-                print(f"news appeneded")
+                print(len(news), 'found in year:', n)
+                # with open(f'{name}.json', 'w') as file:
+                #     json.dump(news, file, indent=2)
+                print(f'news appeneded')
         except Exception as e:
             print(name, e)
-            return e
 
+        print("news__________", news)
         return news
 
+# async def news_links(name, start_year, end_year, number_of_urls, driver):
 
-async def link_extraction(name, start_year, end_year, number_of_urls):
+#     duration = list(range(start_year, end_year + 1))
+#     duration = [str(num) for num in duration]
+#     base_url = "https://news.google.com/search?q="
+#     news = []
+#     for n in duration:
+#         hco_url = base_url + urllib.parse.quote(
+#             name + " after:" + n + "-01-01 before:" + n + "-12-31"
+#         )
+#         driver.get(hco_url)
+#         print(hco_url)
+#         i = 3
+#         await asyncio.sleep(random.uniform(2, 5))  # Random delay between 2-5 seconds
+
+#         try:
+#             while i:
+#                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+#                 time.sleep(1)
+#                 i = i - 1
+#         except:
+#             i = 0
+#         try:
+#             body = driver.find_element(By.CLASS_NAME, "D9SJMe")
+#             articles = body.find_elements(By.CLASS_NAME, "IFHyqb.DeXSAc")
+#             print(len(articles))
+#             if len(articles) == 0:
+#                 print("no news")
+#                 continue
+#             i = 0
+#             for article in articles:
+#                 date_element = article.find_element(By.CLASS_NAME, "hvbAAd")
+#                 date = date_element.get_attribute("datetime")
+#                 date = date[:10]
+#                 # print(date)
+#                 if i < number_of_urls:
+#                     # if 1:
+#                     title_element = article.find_element(By.CLASS_NAME, "JtKRv")
+#                     title = title_element.text
+#                     # anchor_tag = title_element.find_element(By.TAG_NAME,'a')
+#                     link = title_element.get_attribute("href")
+#                     i = i + 1
+#                     # print(i)
+#                     news.append({"title": title, "date": date, "link": link})
+#                     # print(title, date)
+#                     # print(link)
+#             if i == 0:
+#                 print("no news in the timeframe given")
+
+#                 continue
+#             else:
+#                 print(len(news), "found in year:", n)
+#                 with open(f"{name}.json", "w") as file:
+#                     json.dump(news, file, indent=2)
+#                 print(f"news appeneded")
+#         except Exception as e:
+#             print(name, e)
+#             return e
+
+#         return news
+
+
+async def link_extraction(name, start_year, end_year):
     print(
-        "name, start_year, end_year, number_of_urls",
+        "name, start_year, end_year",
         name,
         start_year,
-        end_year,
-        number_of_urls,
-    )
+        end_year    )
     options = Options()
     ua = UserAgent()
     options = Options()
@@ -119,10 +167,10 @@ async def link_extraction(name, start_year, end_year, number_of_urls):
         r"C:/Users/VC899BC/OneDrive - EY/Documents/EYProjects/Fastapi/driver/msedgedriver.exe"
     )
     driver = webdriver.Edge(service=ser_obj, options=options)
-    news = await news_link(name, start_year, end_year, number_of_urls, driver)
-    print("len(news)", len(news))
+    news = await news_link(name, start_year, end_year, driver)
+    print("len(news)", news)
 
-    for n in range(0, len(news)):
+    for n in range(0, len(news[:3])):
         driver.get(news[n]["link"])
         time.sleep(4)
         # title = driver.title
