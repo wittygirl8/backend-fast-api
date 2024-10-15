@@ -408,4 +408,4 @@ async def link_extraction(name, start_year, end_year, domain):
     news = await get_article_sentiments(news, name, domain, driver)
     
     driver.quit()  # Close the browser once done
-    return return {"status": 200, "data": news}
+    return {"status": 200, "data": news}
