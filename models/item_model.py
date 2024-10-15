@@ -172,138 +172,140 @@ async def keyword(text):
         return reason
 
 
-async def news_link(name, start_year, end_year, domain, driver):
-    duration = list(range(start_year, end_year + 1))
-    duration = [str(num) for num in duration]
-    base_url = 'https://news.google.com/search?q='
-    news = []
-    for n in duration:
-        hco_url = base_url + urllib.parse.quote(name + '  info after:' + n + '-01-01 before:' + n + '-12-31')
-        driver.get(hco_url)
-        print(hco_url)
-        # Accept cookies if prompted
-        # try:
-        #     accept_cookies_button = driver.find_element(By.XPATH, "//button[contains(text(),'Accept')]")
-        #     if accept_cookies_button:
-        #         accept_cookies_button.click()
-        #         print("Accepted cookies.")
-        # except:
-        #     print("No cookies popup found.")
-
-        # await asyncio.sleep(random.uniform(2, 5))  # Random delay between 2-5 seconds
-        # Scroll the page to load more news articles
-        scroll_attempts = 3
-        while scroll_attempts:
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            await asyncio.sleep(random.uniform(1, 3))  # Random delay between scrolls
-            scroll_attempts -= 1
-
-        try:
-            # Wait for the articles section to load
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "D9SJMe"))
-            )
-        # try:
-        #     while i:
-        #         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        #         time.sleep(1)
-        #         i = i - 1
-        # except:
-        #     i = 0
-        # try:
-            body = driver.find_element(By.CLASS_NAME, "D9SJMe")
-            articles = body.find_elements(By.CLASS_NAME, "IFHyqb.DeXSAc")
-            print(len(articles))
-            if len(articles) == 0:
-                print('no news')
-                continue
-            for article in articles:
-                date_element = article.find_element(By.CLASS_NAME, 'hvbAAd')
-                date = date_element.get_attribute('datetime')
-                date = date[:10]
-                # print(date)
-                title_element = article.find_element(By.CLASS_NAME, 'JtKRv')
-                title = title_element.text
-                # anchor_tag = title_element.find_element(By.TAG_NAME,'a')
-                link = title_element.get_attribute('href')
-                # print(i)
-                news.append({'title': title, 'date': date, 'link': link})
-                # print(title, date)
-                # print(link)
-            if len(articles) == 0:
-                print('no news in the timeframe given')
-                continue
-            else:
-                print(len(news), 'found in year:', n)
-                # with open(f'{name}.json', 'w') as file:
-                #     json.dump(news, file, indent=2)
-                print(f'news appeneded')
-        except Exception as e:
-            print(name, e)
-
-        # print("news__________", news)
-        return news
-
-# async def news_links(name, start_year, end_year, number_of_urls, driver):
-
+# async def news_link(name, start_year, end_year, domain, driver):
 #     duration = list(range(start_year, end_year + 1))
 #     duration = [str(num) for num in duration]
-#     base_url = "https://news.google.com/search?q="
+#     base_url = 'https://news.google.com/search?q='
 #     news = []
 #     for n in duration:
-#         hco_url = base_url + urllib.parse.quote(
-#             name + " after:" + n + "-01-01 before:" + n + "-12-31"
-#         )
+#         hco_url = base_url + urllib.parse.quote(name + '  info after:' + n + '-01-01 before:' + n + '-12-31')
 #         driver.get(hco_url)
 #         print(hco_url)
-#         i = 3
-#         await asyncio.sleep(random.uniform(2, 5))  # Random delay between 2-5 seconds
+#         # Accept cookies if prompted
+#         # try:
+#         #     accept_cookies_button = driver.find_element(By.XPATH, "//button[contains(text(),'Accept')]")
+#         #     if accept_cookies_button:
+#         #         accept_cookies_button.click()
+#         #         print("Accepted cookies.")
+#         # except:
+#         #     print("No cookies popup found.")
+
+#         # await asyncio.sleep(random.uniform(2, 5))  # Random delay between 2-5 seconds
+#         # Scroll the page to load more news articles
+#         scroll_attempts = 3
+#         while scroll_attempts:
+#             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+#             await asyncio.sleep(random.uniform(1, 3))  # Random delay between scrolls
+#             scroll_attempts -= 1
 
 #         try:
-#             while i:
-#                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-#                 time.sleep(1)
-#                 i = i - 1
-#         except:
-#             i = 0
-#         try:
+#             # Wait for the articles section to load
+#             WebDriverWait(driver, 10).until(
+#                 EC.presence_of_element_located((By.CLASS_NAME, "D9SJMe"))
+#             )
+#         # try:
+#         #     while i:
+#         #         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+#         #         time.sleep(1)
+#         #         i = i - 1
+#         # except:
+#         #     i = 0
+#         # try:
 #             body = driver.find_element(By.CLASS_NAME, "D9SJMe")
 #             articles = body.find_elements(By.CLASS_NAME, "IFHyqb.DeXSAc")
 #             print(len(articles))
 #             if len(articles) == 0:
-#                 print("no news")
+#                 print('no news')
 #                 continue
-#             i = 0
 #             for article in articles:
-#                 date_element = article.find_element(By.CLASS_NAME, "hvbAAd")
-#                 date = date_element.get_attribute("datetime")
+#                 date_element = article.find_element(By.CLASS_NAME, 'hvbAAd')
+#                 date = date_element.get_attribute('datetime')
 #                 date = date[:10]
 #                 # print(date)
-#                 if i < number_of_urls:
-#                     # if 1:
-#                     title_element = article.find_element(By.CLASS_NAME, "JtKRv")
-#                     title = title_element.text
-#                     # anchor_tag = title_element.find_element(By.TAG_NAME,'a')
-#                     link = title_element.get_attribute("href")
-#                     i = i + 1
-#                     # print(i)
-#                     news.append({"title": title, "date": date, "link": link})
-#                     # print(title, date)
-#                     # print(link)
-#             if i == 0:
-#                 print("no news in the timeframe given")
-
+#                 title_element = article.find_element(By.CLASS_NAME, 'JtKRv')
+#                 title = title_element.text
+#                 # anchor_tag = title_element.find_element(By.TAG_NAME,'a')
+#                 link = title_element.get_attribute('href')
+#                 # print(i)
+#                 news.append({'title': title, 'date': date, 'link': link})
+#                 # print(title, date)
+#                 # print(link)
+#             if len(articles) == 0:
+#                 print('no news in the timeframe given')
 #                 continue
 #             else:
-#                 print(len(news), "found in year:", n)
-#                 with open(f"{name}.json", "w") as file:
-#                     json.dump(news, file, indent=2)
-#                 print(f"news appeneded")
+#                 print(len(news), 'found in year:', n)
+#                 # with open(f'{name}.json', 'w') as file:
+#                 #     json.dump(news, file, indent=2)
+#                 print(f'news appeneded')
 #         except Exception as e:
 #             print(name, e)
-#             return e
 
+#         # print("news__________", news)
 #         return news
+
+async def news_link(name, start_year, end_year, domain, driver):
+
+    duration = list(range(start_year, end_year + 1))
+    duration = [str(num) for num in duration]
+    base_url = "https://news.google.com/search?q="
+    news = []
+    for n in duration:
+        hco_url = base_url + urllib.parse.quote(
+            name + " after:" + n + "-01-01 before:" + n + "-12-31"
+        )
+        driver.get(hco_url)
+        print(hco_url)
+        i = 3
+        await asyncio.sleep(random.uniform(2, 5))  # Random delay between 2-5 seconds
+
+        try:
+            while i:
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(1)
+                i = i - 1
+        except:
+            i = 0
+            
+            
+        try:
+            body = driver.find_element(By.CLASS_NAME, "D9SJMe")
+            articles = body.find_elements(By.CLASS_NAME, "IFHyqb.DeXSAc")
+            print(len(articles))
+            if len(articles) == 0:
+                print("no news")
+                continue
+            i = 0
+            for article in articles:
+                date_element = article.find_element(By.CLASS_NAME, "hvbAAd")
+                date = date_element.get_attribute("datetime")
+                date = date[:10]
+                # print(date)
+                #if i < number_of_urls:
+                # if 1:
+                title_element = article.find_element(By.CLASS_NAME, "JtKRv")
+                title = title_element.text
+                # anchor_tag = title_element.find_element(By.TAG_NAME,'a')
+                link = title_element.get_attribute("href")
+                i = i + 1
+                # print(i)
+                news.append({"title": title, "date": date, "link": link})
+                # print(title, date)
+                # print(link)
+            if i == 0:
+                print("no news in the timeframe given")
+
+                continue
+            else:
+                print(len(news), "found in year:", n)
+                with open(f"{name}.json", "w") as file:
+                    json.dump(news, file, indent=2)
+                print(f"news appeneded")
+        except Exception as e:
+            print(name, e)
+            return e
+
+        return news
 
 async def get_article_sentiments(news, name, domain, driver):
     final_news = []
@@ -352,6 +354,7 @@ async def get_article_sentiments(news, name, domain, driver):
                         'title': news[n]['title'], 
                         'date': news[n]['date'], 
                         'link': news[n]['link'], 
+                        'full_article': text_content,
                         'summary': summary,
                         'sentiment': senti,
                         'Keywords': key, 
@@ -405,4 +408,4 @@ async def link_extraction(name, start_year, end_year, domain):
     news = await get_article_sentiments(news, name, domain, driver)
     
     driver.quit()  # Close the browser once done
-    return news
+    return return {"status": 200, "data": news}
