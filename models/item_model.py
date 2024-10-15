@@ -3,6 +3,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.service import Service
 from selenium.webdriver.edge.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 from openai import AzureOpenAI
 import re
@@ -55,7 +57,7 @@ async def summarize_text(text, person):
     message_text = [
         {"role": "system", "content": "You are an AI assistant that summarizes"},
         {"role": "user",
-         "content": f"Summarize the text in english language within 30 words strictly (without deviation from topic) and highlight {person} contribution in it. Output should only the summary. If any alert message, output should be 'out of bound':<alert-message>. The input text is {text}"}
+         "content": f"Summarize the text in english language within 30 words strictly (without deviation from topic) and highlight {person} contribution in it. Output should only the summary. The input text is {text}"}
     ]
     try:
         completion = client.chat.completions.create(
@@ -127,7 +129,7 @@ async def sentiment(text):
     message_text = [
         {"role": "system", "content": "You are an AI assistant that categorizes."},
         {"role": "user",
-         "content": f"For the following text, categorize sentiment into 'positive' or 'negative'. If not both, categorize as 'neutral'. The ouput should only be one of the 3. The input text is {text}"}
+         "content": f"For the provided text, categorize the sentiment as either 'positive' or 'negative'. If it doesn't fit into either of these, categorize it as 'neutral'. The output should be one of these three categories. The input text is {text}"}
     ]
     try:
         completion = client.chat.completions.create(
@@ -151,7 +153,7 @@ async def keyword(text):
     message_text = [
         {"role": "system", "content": "You are an AI assistant that identifies."},
         {"role": "user",
-         "content": f"For the following text of news, give one word categorical keyword. No other output. The input text is {text}"}
+         "content": f"For the provided text of news, generate a list of relevant categorical keywords. The first value in the list should represent the major categorical keyword, followed by other relevant keywords. The input text is {text}"}
     ]
     try:
         completion = client.chat.completions.create(
@@ -176,19 +178,39 @@ async def news_link(name, start_year, end_year, domain, driver):
     base_url = 'https://news.google.com/search?q='
     news = []
     for n in duration:
-        hco_url = base_url + urllib.parse.quote(name + ' ' + domain + '  info after:' + n + '-01-01 before:' + n + '-12-31')
+        hco_url = base_url + urllib.parse.quote(name + '  info after:' + n + '-01-01 before:' + n + '-12-31')
         driver.get(hco_url)
         print(hco_url)
-        i = 3
-        await asyncio.sleep(random.uniform(2, 5))  # Random delay between 2-5 seconds
+        # Accept cookies if prompted
+        # try:
+        #     accept_cookies_button = driver.find_element(By.XPATH, "//button[contains(text(),'Accept')]")
+        #     if accept_cookies_button:
+        #         accept_cookies_button.click()
+        #         print("Accepted cookies.")
+        # except:
+        #     print("No cookies popup found.")
+
+        # await asyncio.sleep(random.uniform(2, 5))  # Random delay between 2-5 seconds
+        # Scroll the page to load more news articles
+        scroll_attempts = 3
+        while scroll_attempts:
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            await asyncio.sleep(random.uniform(1, 3))  # Random delay between scrolls
+            scroll_attempts -= 1
+
         try:
-            while i:
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                time.sleep(1)
-                i = i - 1
-        except:
-            i = 0
-        try:
+            # Wait for the articles section to load
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "D9SJMe"))
+            )
+        # try:
+        #     while i:
+        #         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        #         time.sleep(1)
+        #         i = i - 1
+        # except:
+        #     i = 0
+        # try:
             body = driver.find_element(By.CLASS_NAME, "D9SJMe")
             articles = body.find_elements(By.CLASS_NAME, "IFHyqb.DeXSAc")
             print(len(articles))
@@ -284,9 +306,20 @@ async def news_link(name, start_year, end_year, domain, driver):
 #         return news
 
 async def get_article_sentiments(news, name, domain, driver):
+    final_news = []
+    count = 0
     for n in range(0, len(news[:15])):
         driver.get(news[n]["link"])
         time.sleep(4)
+        # Remove accept cookies
+        try:
+            accept_cookies_button = driver.find_element(By.XPATH, "//button[contains(text(),'Accept')]")
+            if accept_cookies_button:
+                accept_cookies_button.click()
+        except:
+            print("No cookies popup found.")
+
+        await asyncio.sleep(random.uniform(2, 5))  # Random delay between requests
         # title = driver.title
         # print(f"Title: {title}")
         page_source = driver.page_source
@@ -303,18 +336,36 @@ async def get_article_sentiments(news, name, domain, driver):
         ans = await related_to_person(name, article)
         print("related_to_person____________", ans, n)
         if "Y" in ans:
-            ans = await related_to_domain(domain, article)
+            count += 1
+            rtd = await related_to_domain(domain, article)
             print("related_to_domain____________", ans, n)
             print(ans, n)
-            if "Y" in ans:
-                summary = await summarize_text(article, name)
-                print(n, summary)
-                ans = await sentiment(article)
-                key = await keyword(article)
-                news[n]["summary"] = summary
-                news[n]["sentiment"] = ans
-                news[n]["Keyword"] = key  
-    return news 
+            # if "Y" in ans:
+            summary = await summarize_text(article, name)
+            print(n, summary)
+            senti = await sentiment(article)
+            print("senti", senti)
+            key = await keyword(article)
+            print("keywords", keyword)
+            final_news.append(
+                    {
+                        'title': news[n]['title'], 
+                        'date': news[n]['date'], 
+                        'link': news[n]['link'], 
+                        'summary': summary,
+                        'sentiment': senti,
+                        'Keywords': key, 
+                        'domain' : True if "Y" in rtd else False 
+                    })
+            # news[n]["summary"] = summary
+            # news[n]["sentiment"] = senti
+            # news[n]["Keyword"] = key
+            # news[n]["domain"] = True if "Y" in rtd else False
+        else:
+            continue
+        if count == 3:
+            break
+    return final_news 
 
 
 async def link_extraction(name, start_year, end_year, domain):
@@ -340,45 +391,18 @@ async def link_extraction(name, start_year, end_year, domain):
     news = await news_link(name, start_year, end_year, domain, driver)
     # print("len(news)", news)
     count = 0
-    if len(news):
-        news = await get_article_sentiments(news, name, domain, driver)
-        # for n in range(0, len(news[:3])):
-        #     driver.get(news[n]["link"])
-        #     time.sleep(4)
-        #     # title = driver.title
-        #     # print(f"Title: {title}")
-        #     page_source = driver.page_source
-        #     soup = BeautifulSoup(page_source, "html.parser")
-        #     text_content = " ".join(soup.stripped_strings)
-        #     print("text_content", text_content)
-        #     news[n]["full_article"] = text_content
-        #     article = remove_first_and_last_two_sentences(news[n]["full_article"])
-        #     words = article.split()
-        #     restricted_words = words[:100]
-        #     article = ' '.join(restricted_words)
-        #     # print(article)
-        #     ans = related_to_person(name, article)
-        #     print(ans, n)
-        #     if "Y" in ans:
-        #         ans = related_to_domain(domain, article)
-        #         print(ans, n)
-        #         if "Y" in ans:
-        #             summary = summarize_text(article, name)
-        #             print(n, summary)
-        #             ans = sentiment(article)
-        #             key = keyword(article)
-        #             news[n]["summary"] = summary
-        #             news[n]["sentiment"] = ans
-        #             news[n]["Keyword"] = key        
-    else:
-        for count in range(5):
-            count +=1
-            news = await news_link(name, start_year, end_year, domain,driver)
-            if len(news):
-                news = await get_article_sentiments(news, name, domain, driver)
-                break
-                
+    count = 0
+    while not news and count < 5:
+        count += 1
+        print(f"Retrying... attempt {count}")
+        # time.sleep(2)  # Wait before retrying
+        news = await news_link(name, start_year, end_year, domain, driver)
+
+    if not news:
         return {"status": 404, "message": "No News Found"}
+
+    # Process and analyze news articles if found
+    news = await get_article_sentiments(news, name, domain, driver)
     
-    
+    driver.quit()  # Close the browser once done
     return news
