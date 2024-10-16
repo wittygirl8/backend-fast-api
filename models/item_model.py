@@ -31,7 +31,35 @@ items_db: List[ItemModel] = [
     ItemModel(id=3, name="Item Three", description="This is the third item."),
 ]
 
-
+dummyData = [
+  {
+    "title": "John Doe' former wife Melinda Gates is now dating Jon Du Pre, say reports",
+    "date": "2022-11-09",
+    "link": "https://news.google.com/read/CBMi4gFBVV95cUxPYUdNS2ZGUS0zRWVxX3A5Q0JLWjNYcFpZb01HRWVlRzRIdllOaWczYjV5MzZWZm0wYVRwaUtralJsZXhiUEUweDgyUkJHY2xiU3E5cks3ZWR6LWJFRmVnVkVES1FYWnJab1IyXy1wUEtFaFFKN1NpTXJNSnN4Tml5TkFWS2Q2OHpKRVZLTjdMTkxQYzJjXy11Rk5VS3VoQWMyTmQ3TUJaQ0xZTHpLT0poWjJsc0NhakU0c01sZDhHSmJORzh2elZhX1Z1U2trTUYxYzlYSkdWR18xV004c0c3RTVB0gHnAUFVX3lxTE1YY09sa2xGOTNiVTFUMmtDN0RLZEVKMnl3RUtpUDNhWEEwMEMwYUU0NWttQzUwVHhSYUpSU0xUX3l3U1hpMjZ5QjNjRnZvVUxRTEpCWVFvRlpIZzhJenA2MFQ0Q3ZhT0o1TThuZE9kekJJaHZLaGwzclRwNGpsUHZfM0NlRVFwMHhnVk5Pc0ZGZktKUkJudG1lejNsSHVtNWZkWlVDZVZ4NS0xaTVVYkNGN1hoR0RVRUY3NktGV3NJVVBQQ0tTOGI5dVlXYTZUamJXS0FPZFRMN1U2TGtCWFJlRFdrcUJFcw?hl=en-IN&gl=IN&ceid=IN%3Aen",
+    "summary": "John Doe divorced Melinda Gates in 2021 after being married since 1994.",
+    "sentiment": "Neutral",
+    "Keywords": "1. Celebrity Relationships\n2. Divorce\n3. Melinda Gates\n4. John Doe\n5. Jon Du Pre\n6. High-profile Divorce\n7. Strategic Communications Specialist\n8. Broadcasting\n9. Writing\n10. Video Production\n11. Headlines\n12. Recent Years\n13. New Relationship\n14. Marriage\n15. 1994\n16. 2021",
+    "domain": False
+  },
+  {
+    "title": "4 things John Doe did wrong on his 1974 Harvard student resume, from experts: 'He even has his dorm room number'",
+    "date": "2022-08-12",
+    "link": "https://news.google.com/read/CBMijAFBVV95cUxNd3loVUE5eTZGR0xTRzJyb3d4VUJRRERJcnREZmF0MGZkaUdjcGJRN3BwdWdnLUZ3eHF1c3ZQR2l5WFJXVDJ1SmVYWGVCRjQ1UVhDUnFKN3FPTjlINzFzUklxWlZUbHNRQzdLTmZ6Vm9UdTM0OUQzQXBQOUlRVmtwMDhWbHV6OHlkX3dfb9IBkgFBVV95cUxPZkNFTzdDYVU1dVI5dkNmYnlWOEpXS0U5TWpYbHRFNy1sdTlaU2M2T1E5ZzJ6NEhadVRGcDFBTlJlakd3SWoxU0VJUHNfS01YbF9vMWlTY193VWRXR3RXQjRoYV96MW9VOFF6MVBUaUFveExVbUt0SnFERTNvZ1pyWER4dW1selh1UFRZYTdITTZjUQ?hl=en-IN&gl=IN&ceid=IN%3Aen",
+    "summary": "John Doe, at 18, created a typewritten resume featuring impressive achievements and mastery of multiple programming languages before dropping out of Harvard to found his company.",
+    "sentiment": "Neutral",
+    "Keywords": "1. Career & Employment\n2. Education\n3. Technology\n4. Historical Documents\n5. Personal Achievements\n6. Computer Programming\n7. Historical Figures\n8. Resumes\n9. Typewriters\n10. 1970s",
+    "domain": True
+  },
+  {
+    "title": "Inside John Doe’ US$130 million OTT mansion, Xanadu 2.0",
+    "date": "2022-10-18",
+    "link": "https://news.google.com/read/CBMi9gFBVV95cUxOSl9wLW5IMEMxcTJ4UnM4dHNsR2s5VGQtWXZYZGc3UE4tTVgwT2lEWVVOMWlZRTF1ZnJDUjJSZ1JYNmJRdTA3VU5Jb1lJQ1ZGMnM0RDhZX2pRZXpJcmJLbWpsY2xBZnpocVhrRWRET0NFUGtTdU8za2JEYTc1bnFzZndiMTJBNkNrdTJxX00tMWRqYnB6LTFQaWcwX3FFQXdzVlRaclZtLUgwR1NZQzc4V3ZfZlZtOWloRVFMZC0wWTBrbjJkT0NiMlF2N21yZEUyWnNnemVBSFZFSUJaUWRZZ0ZINUtXV3ZrLTAtSFJWTENPMldVT0HSAfYBQVVfeXFMTjByUEw4RlN0MDc0MGhYMWJENnRsYmhPSEJmVGRpWVhYUUw2cWM5M1lKSDV5ckd4MTE5V0w3VkxjWWotNFpfSTlPdDk3NlVBUGVSMXN6czdIbjNKaHZPQnM3SURHUDhEM0pISzhkQkpBMk04QlA2R0c0aFRobXFnQ1BJV2ZlbmxzNjIyTVF3SHloM2hpSWQwdzBsNEFqUHg2NFpLT0xLTkZJSFhHenpQaHptUEhucmxJUjRxNjR3c3h5ekN4TkZmNTJnQ0xJV2hibC1DSnpJRnJYM3JMSkV1ZU5fZ2xCT0dHLWtRMDNVVEFXMnJOb2xn?hl=en-IN&gl=IN&ceid=IN%3Aen",
+    "summary": "John Doe spent US$63 million to upgrade his 66,000 sq ft Washington home, Xanadu 2.0, with tech, art, and 24 bathrooms.",
+    "sentiment": "Neutral",
+    "Keywords": "1. Celebrities\n2. John Doe\n3. Mansion\n4. Technology\n5. Luxury\n6. Real Estate\n7. Art\n8. Bathrooms\n9. Melinda Gates\n10. Washington\n11. Millionaires\n12. Billionaires\n13. Property\n14. Home Improvement",
+    "domain": False
+  }
+]
 
 
 # OpenAI 
@@ -298,8 +326,6 @@ async def news_link(name, start_year, end_year, domain, driver):
                 continue
             else:
                 print(len(news), "found in year:", n)
-                with open(f"{name}.json", "w") as file:
-                    json.dump(news, file, indent=2)
                 print(f"news appeneded")
         except Exception as e:
             print(name, e)
@@ -372,6 +398,8 @@ async def get_article_sentiments(news, name, domain, driver):
 
 
 async def link_extraction(name, start_year, end_year, domain):
+    if name.lower().replace(" ", "") == 'johndoe':
+        return {"status": 200, "message": "successful" ,"data": dummyData}
     print(
         "name, start_year, end_year",
         name,
@@ -402,10 +430,10 @@ async def link_extraction(name, start_year, end_year, domain):
         news = await news_link(name, start_year, end_year, domain, driver)
 
     if not news:
-        return {"status": 404, "message": "No News Found"}
+        return {"status": 404, "message": "no news found", "data": []}
 
     # Process and analyze news articles if found
     news = await get_article_sentiments(news, name, domain, driver)
     
     driver.quit()  # Close the browser once done
-    return {"status": 200, "data": news}
+    return {"status": 200, "message": "successful" ,"data": news}
